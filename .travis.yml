@@ -1,0 +1,14 @@
+sudo: required
+services:
+  - docker
+
+before_install:
+  #  got the below command from travis ci container after encrypting the service-account.json file
+  - openssl aes-256-cbc -K $encrypted_9f3b5599b056_key -iv $encrypted_9f3b5599b056_iv -in service-account.json.enc -out service-account.json -d
+  # install the google cloud SDK
+  - curl https://sdk.cloud.google.com | bash > /dev/null;
+  - source $HOME/google-cloud-sdk/path.bash.inc
+  # install the kubectl command line tool
+  - gcloud components update kubectl
+  # "activate-service-account" ~= to Amazon IAM system
+  - gcloud auth activate-service-account --key-file service-account.json
