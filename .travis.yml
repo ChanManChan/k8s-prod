@@ -2,6 +2,13 @@ sudo: required
 services:
   - docker
 
+env:
+  global:
+    # determines the current commit SHA and assigns it to an environment variable inside travis env alone
+    - SHA=$(git rev-parse HEAD)
+    # disable user inputs
+    - CLOUDSDK_CORE_DISABLE_PROMPTS=1
+
 before_install:
   #  got the below command from travis ci container after encrypting the service-account.json file
   - openssl aes-256-cbc -K $encrypted_9f3b5599b056_key -iv $encrypted_9f3b5599b056_iv -in service-account.json.enc -out service-account.json -d
@@ -12,3 +19,18 @@ before_install:
   - gcloud components update kubectl
   # "activate-service-account" ~= to Amazon IAM system
   - gcloud auth activate-service-account --key-file service-account.json
+  - gcloud config set project k8s-prod-292107
+  - gcloud config set compute/zone us-central1-c
+  - gcloud container clusters get-credentials my-first-cluster-1
+  # running tests starts
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  - docker build -t "$DOCKER_USERNAME"/react-test -f ./client/Dockerfile.dev ./client
+
+script:
+  - docker run -e CI=true "$DOCKER_USERNAME"/react-test npm test
+
+deploy:
+  provider: script
+  script: bash ./deploy.sh
+  on:
+    branch: master
