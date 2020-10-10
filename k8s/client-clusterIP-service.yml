@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: client-cluster-ip-service
+spec:
+  type: ClusterIP
+  selector:
+    # connection between this clusterIP service and the client deployment is done through this selector
+    component: web
+  ports:
+    - port: 3000
+      targetPort: 3000

@@ -1,0 +1,13 @@
+# tells kubernetes that we want to find a storage option with these requirements
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: database-persistent-volume-claim
+spec:
+# if this claim is attached to a pod, k8s must find an instance of storage (slice of the HDD), that meets these requirements
+  accessModes:
+    # node access
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
